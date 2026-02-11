@@ -2,7 +2,7 @@
 
 A Vite + React app to generate Chrome extension icons from Lucide icons.
 
-![Icon Generator](screenshots/icon-generator.png)
+![Icon Generator](screenshots/icon-generator-v2.png)
 
 ## Features
 - Pick primary and secondary icons from the full Lucide set
