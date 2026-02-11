@@ -423,28 +423,53 @@ const SelectedIcons = memo(function SelectedIcons({
   );
 });
 
-const IconCard = memo(function IconCard({ name, selected, onSelect }) {
+const IconCard = memo(function IconCard({ name, selectedPrimary, selectedSecondary, onSelect }) {
   const Icon = resolveIcon(name);
   return (
     <button
       type="button"
-      className={`icon-card ${selected ? "selected" : ""}`}
+      className={`icon-card ${
+        selectedPrimary || selectedSecondary ? "selected" : ""
+      }`}
       onClick={() => onSelect(name)}
     >
       {Icon ? <Icon size={28} stroke="currentColor" strokeWidth={1.6} /> : null}
       <span>{name}</span>
+      <div className="icon-actions">
+        <button
+          type="button"
+          className={`icon-chip ${selectedPrimary ? "active" : ""}`}
+          onClick={(e) => {
+            e.stopPropagation();
+            onSelect(name, "primary");
+          }}
+        >
+          Primary
+        </button>
+        <button
+          type="button"
+          className={`icon-chip ${selectedSecondary ? "active" : ""}`}
+          onClick={(e) => {
+            e.stopPropagation();
+            onSelect(name, "secondary");
+          }}
+        >
+          Secondary
+        </button>
+      </div>
     </button>
   );
 });
 
-const IconGrid = memo(function IconGrid({ icons, selected, onSelect }) {
+const IconGrid = memo(function IconGrid({ icons, primaryIcon, secondaryIcon, onSelect }) {
   return (
     <div className="grid">
       {icons.map((name) => (
         <IconCard
           key={name}
           name={name}
-          selected={selected.includes(name)}
+          selectedPrimary={name === primaryIcon}
+          selectedSecondary={name === secondaryIcon}
           onSelect={onSelect}
         />
       ))}
@@ -492,18 +517,14 @@ export default function App() {
     return ALL_ICON_NAMES.filter((name) => name.toLowerCase().includes(query));
   }, [search]);
 
-  const selectedList = useMemo(() => {
-    return [primaryIcon, secondaryIcon].filter(Boolean);
-  }, [primaryIcon, secondaryIcon]);
-
   const handleSelectIcon = useCallback(
-    (name) => {
-      if (name === primaryIcon) {
-        setPrimaryIcon("");
+    (name, slot) => {
+      if (slot === "primary") {
+        setPrimaryIcon((prev) => (prev === name ? "" : name));
         return;
       }
-      if (name === secondaryIcon) {
-        setSecondaryIcon("");
+      if (slot === "secondary") {
+        setSecondaryIcon((prev) => (prev === name ? "" : name));
         return;
       }
       if (!primaryIcon) {
@@ -988,7 +1009,12 @@ export default function App() {
               onClearSecondary={() => setSecondaryIcon("")}
             />
             <hr className="grid-divider" />
-            <IconGrid icons={filteredIcons} selected={selectedList} onSelect={handleSelectIcon} />
+            <IconGrid
+              icons={filteredIcons}
+              primaryIcon={primaryIcon}
+              secondaryIcon={secondaryIcon}
+              onSelect={handleSelectIcon}
+            />
           </section>
         </div>
       </div>
